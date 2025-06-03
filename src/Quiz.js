@@ -14,6 +14,8 @@ const QuizApp = () => {
   const [isCorrect, setIsCorrect] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  console.log(isCorrect)
+
   // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
