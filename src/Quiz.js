@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import './quiz.css';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import "./quiz.css";
 
 const QuizApp = () => {
   const [categories, setCategories] = useState([]);
@@ -14,17 +14,17 @@ const QuizApp = () => {
   const [isCorrect, setIsCorrect] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  console.log(isCorrect)
+  console.log(isCorrect);
 
   // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('https://opentdb.com/api_category.php');
+        const response = await fetch("https://opentdb.com/api_category.php");
         const data = await response.json();
         setCategories(data.trivia_categories);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
       }
     };
 
@@ -39,25 +39,28 @@ const QuizApp = () => {
         `https://opentdb.com/api.php?amount=10&category=${categoryId}&type=multiple`
       );
       const data = await response.json();
-      
+
       // Process questions to decode HTML entities
-      const processedQuestions = data.results.map(question => ({
+      const processedQuestions = data.results.map((question) => ({
         ...question,
         question: decodeHTMLEntities(question.question),
         correct_answer: decodeHTMLEntities(question.correct_answer),
-        incorrect_answers: question.incorrect_answers.map(ans => decodeHTMLEntities(ans))
+        incorrect_answers: question.incorrect_answers.map((ans) =>
+          decodeHTMLEntities(ans)
+        ),
       }));
-      
+
       setQuestions(processedQuestions);
       setSelectedCategory(
-        categories.find(cat => cat.id === categoryId)?.name || 'General Knowledge'
+        categories.find((cat) => cat.id === categoryId)?.name ||
+          "General Knowledge"
       );
       setQuizStarted(true);
       setCurrentQuestionIndex(0);
       setScore(0);
       setQuizCompleted(false);
     } catch (error) {
-      console.error('Error fetching questions:', error);
+      console.error("Error fetching questions:", error);
     } finally {
       setLoading(false);
     }
@@ -65,7 +68,7 @@ const QuizApp = () => {
 
   // Helper function to decode HTML entities
   const decodeHTMLEntities = (text) => {
-    const textArea = document.createElement('textarea');
+    const textArea = document.createElement("textarea");
     textArea.innerHTML = text;
     return textArea.value;
   };
@@ -73,19 +76,19 @@ const QuizApp = () => {
   // Handle answer selection
   const handleAnswerSelect = (answer) => {
     if (selectedAnswer !== null) return; // Prevent multiple selections
-    
+
     setSelectedAnswer(answer);
     const correct = answer === questions[currentQuestionIndex].correct_answer;
     setIsCorrect(correct);
-    
+
     if (correct) {
-      setScore(prevScore => prevScore + 1);
+      setScore((prevScore) => prevScore + 1);
     }
 
     // Move to next question after a delay
     setTimeout(() => {
       if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(prev => prev + 1);
+        setCurrentQuestionIndex((prev) => prev + 1);
         setSelectedAnswer(null);
         setIsCorrect(null);
       } else {
@@ -109,17 +112,18 @@ const QuizApp = () => {
 
   // Get current question with shuffled answers
   const getCurrentQuestion = () => {
-    if (!questions.length || currentQuestionIndex >= questions.length) return null;
-    
+    if (!questions.length || currentQuestionIndex >= questions.length)
+      return null;
+
     const question = questions[currentQuestionIndex];
     const allAnswers = shuffleArray([
-      ...question.incorrect_answers, 
-      question.correct_answer
+      ...question.incorrect_answers,
+      question.correct_answer,
     ]);
-    
+
     return {
       ...question,
-      allAnswers
+      allAnswers,
     };
   };
 
@@ -138,9 +142,9 @@ const QuizApp = () => {
           >
             <h1>Quiz Categories</h1>
             <p>Select a category to start the quiz</p>
-            
+
             <div className="categories-grid">
-              {categories.map(category => (
+              {categories.map((category) => (
                 <motion.div
                   key={category.id}
                   whileHover={{ scale: 1.05 }}
@@ -154,6 +158,17 @@ const QuizApp = () => {
             </div>
           </motion.div>
         )}
+
+        <div className="progress-container">
+          <div
+            className="progress-bar"
+            style={{
+              width: `${
+                ((currentQuestionIndex + 1) / questions.length) * 100
+              }%`,
+            }}
+          ></div>
+        </div>
 
         {loading && (
           <motion.div
@@ -192,18 +207,21 @@ const QuizApp = () => {
               className="question-card"
             >
               <h3 className="question-text">{currentQuestion.question}</h3>
-              
+
               <div className="answers-grid">
                 {currentQuestion.allAnswers.map((answer, index) => {
-                  let answerClass = '';
+                  let answerClass = "";
                   if (selectedAnswer !== null) {
                     if (answer === currentQuestion.correct_answer) {
-                      answerClass = 'correct';
-                    } else if (answer === selectedAnswer && answer !== currentQuestion.correct_answer) {
-                      answerClass = 'incorrect';
+                      answerClass = "correct";
+                    } else if (
+                      answer === selectedAnswer &&
+                      answer !== currentQuestion.correct_answer
+                    ) {
+                      answerClass = "incorrect";
                     }
                   }
-                  
+
                   return (
                     <motion.button
                       key={index}
@@ -214,7 +232,7 @@ const QuizApp = () => {
                       disabled={selectedAnswer !== null}
                     >
                       {answer}
-                      {answerClass === 'correct' && (
+                      {answerClass === "correct" && (
                         <motion.span
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
@@ -223,7 +241,7 @@ const QuizApp = () => {
                           ✓
                         </motion.span>
                       )}
-                      {answerClass === 'incorrect' && (
+                      {answerClass === "incorrect" && (
                         <motion.span
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
@@ -254,7 +272,9 @@ const QuizApp = () => {
               animate={{ scale: 1 }}
               className="score-circle"
               style={{
-                background: `conic-gradient(#4CAF50 ${(score / questions.length) * 100}%, #f44336 0)`
+                background: `conic-gradient(#4CAF50 ${
+                  (score / questions.length) * 100
+                }%, #f44336 0)`,
               }}
             >
               <div className="score-text">
