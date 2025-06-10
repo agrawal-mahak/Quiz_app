@@ -397,6 +397,7 @@ body {
 }
 
 .difficulty-button {
+  
   padding: 0.6rem 1.5rem;
   border: 2px solid var(--primary-color);
   border-radius: 50px;
